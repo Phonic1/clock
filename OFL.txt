@@ -1,0 +1,7 @@
+Poppins — Copyright 2020 The Poppins Project Authors (https://github.com/itfoundry/Poppins)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is available with a FAQ at: https://openfontlicense.org
+
+The files in this folder are subsets of Poppins Regular, Medium and Bold
+(Latin characters only), converted to WOFF for offline use in this app.

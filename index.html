@@ -1,0 +1,1156 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clockwise – Telling the Time</title>
+<meta name="description" content="Learn to tell the time on an analog clock: o'clock, half past, quarter past, quarter to and five-minute steps. Activities and printable worksheets.">
+<meta name="theme-color" content="#FFC23C">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Clockwise">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+@font-face{font-family:'Poppins';font-weight:400;font-style:normal;font-display:swap;src:url(fonts/poppins-regular.woff) format('woff')}
+@font-face{font-family:'Poppins';font-weight:500;font-style:normal;font-display:swap;src:url(fonts/poppins-medium.woff) format('woff')}
+@font-face{font-family:'Poppins';font-weight:700;font-style:normal;font-display:swap;src:url(fonts/poppins-bold.woff) format('woff')}
+
+:root{
+  --bg:#FFF7EA; --panel:#FFFFFF; --panel2:#FFF1D6; --ink:#1D2B4F; --muted:#5B6787; --line:#EADCC2;
+  --hour:#F2545B; --minute:#2F7DE1; --accent:#FFC23C; --accent-ink:#1D2B4F;
+  --past:#1FA971; --to:#8B5CF6; --face:#FFFFFF; --rim:#1D2B4F;
+  --good:#1FA971; --bad:#E5484D;
+  --shadow:0 4px 0 rgba(29,43,79,.07), 0 12px 28px rgba(29,43,79,.08);
+  --r:22px;
+  --top:76px;
+}
+[data-contrast="high"]{
+  --bg:#000; --panel:#0B0B0B; --panel2:#151515; --ink:#FFFFFF; --muted:#F0F0F0; --line:#FFFFFF;
+  --hour:#FF5C5C; --minute:#3DD9FF; --accent:#FFE500; --accent-ink:#000;
+  --past:#3DFF9A; --to:#D9A8FF; --face:#000; --rim:#FFFFFF; --good:#3DFF9A; --bad:#FF6B6B;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:'Poppins',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+[data-contrast="high"] .card,[data-contrast="high"] .panel,[data-contrast="high"] button{border-color:#fff!important}
+button{font:inherit;color:inherit;cursor:pointer}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;height:var(--top);display:flex;align-items:center;gap:16px;padding:0 20px;padding-top:env(safe-area-inset-top);background:var(--bg);border-bottom:2px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand svg{width:44px;height:44px;flex:none}
+.brand b{display:block;font-size:22px;line-height:1;font-weight:700;letter-spacing:-.01em}
+.brand small{display:block;font-size:12.5px;color:var(--muted);font-weight:500;margin-top:3px}
+.tabs{display:flex;gap:6px;margin:0 auto;background:var(--panel2);padding:5px;border-radius:999px}
+.tabs button{border:0;background:transparent;padding:10px 22px;border-radius:999px;font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tools{display:flex;gap:6px}
+.icon-btn{width:44px;height:44px;border-radius:14px;border:2px solid var(--line);background:var(--panel);display:grid;place-items:center;padding:0}
+.icon-btn svg{width:22px;height:22px}
+.icon-btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+#installBtn{display:none;width:auto;padding:0 14px;font-weight:700;font-size:14px;gap:6px}
+#installBtn.show{display:flex}
+
+main{padding:20px;max-width:1600px;margin:0 auto}
+section[hidden]{display:none!important}
+
+/* ---------- shared pieces ---------- */
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.btn{border:2px solid var(--line);background:var(--panel);border-radius:16px;padding:12px 16px;font-weight:700;font-size:16px;min-height:52px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .08s}
+.btn:active{transform:translateY(2px)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.btn.yellow{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.small{min-height:40px;padding:8px 12px;font-size:14px;border-radius:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 16px;font-weight:700;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.switch{display:inline-flex;align-items:center;gap:10px;border:2px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 14px 7px 8px;font-weight:600;font-size:14.5px}
+.switch i{width:34px;height:20px;border-radius:99px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.switch i:after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s}
+.switch[aria-pressed="true"] i{background:var(--good)}
+.switch[aria-pressed="true"] i:after{left:17px}
+.label{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+
+/* ---------- clock svg (screen) ---------- */
+svg.clock{display:block;width:100%;height:auto;overflow:visible;font-family:'Poppins',sans-serif;user-select:none;-webkit-user-select:none}
+svg.clock .c-rim{fill:var(--rim)}
+svg.clock .c-face{fill:var(--face)}
+svg.clock .c-tick{stroke:var(--ink);stroke-linecap:round}
+svg.clock .c-num{fill:var(--ink);font-weight:700;stroke:var(--face);stroke-width:4;stroke-linejoin:round;paint-order:stroke}
+svg.clock .c-ml{fill:var(--muted);font-weight:600;transition:fill .15s}
+svg.clock .c-mlb{fill:transparent;transition:fill .15s}
+svg.clock .c-ml.on{fill:var(--accent-ink)}
+svg.clock .c-mlb.on{fill:var(--accent)}
+svg.clock .hand-h{fill:var(--hour);stroke:var(--hour)}
+svg.clock .hand-m{fill:var(--minute);stroke:var(--minute)}
+svg.clock .cap{fill:var(--ink)}
+svg.clock .cap2{fill:var(--accent)}
+svg.clock .pt-past{fill:var(--past);opacity:.10}
+svg.clock .pt-to{fill:var(--to);opacity:.10}
+svg.clock .sec-past{fill:var(--past);opacity:.32}
+svg.clock .sec-to{fill:var(--to);opacity:.32}
+svg.clock .pt-lab{font-weight:700;font-size:13px;letter-spacing:.08em}
+svg.clock.draggable{touch-action:none;cursor:grab}
+svg.clock.dragging{cursor:grabbing}
+
+/* ---------- LEARN ---------- */
+.learn{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(340px,1fr);gap:28px;align-items:center;min-height:calc(100vh - var(--top) - 40px)}
+.learn-clock{display:flex;flex-direction:column;align-items:center;gap:12px}
+.learn-clock .clock-wrap{width:min(100%, calc(100vh - var(--top) - 120px));min-width:260px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.legend span{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:6px 14px}
+.legend em{display:inline-block;height:8px;border-radius:4px;font-style:normal}
+.drag-hint{font-size:13.5px;color:var(--muted);font-weight:500;text-align:center}
+.learn-side{display:flex;flex-direction:column;gap:16px}
+.readout{padding:22px 24px;text-align:center;position:relative}
+.readout .digital{font-size:clamp(54px,7vw,104px);font-weight:700;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.readout .words{font-size:clamp(24px,2.8vw,40px);font-weight:700;line-height:1.15;margin-top:10px}
+.readout .words .w-past{color:var(--past)} .readout .words .w-to{color:var(--to)}
+.readout .ask{font-size:clamp(30px,3.4vw,48px);font-weight:700;padding:14px 0}
+.readout .say{position:absolute;top:12px;right:12px}
+.explain{padding:18px 22px}
+.explain h3{margin:0 0 6px;font-size:20px;display:flex;align-items:center;gap:10px}
+.explain h3 .dot{width:14px;height:14px;border-radius:50%;flex:none}
+.explain p{margin:0;font-size:17px;line-height:1.5;font-weight:500}
+.explain .count{margin-top:10px;font-weight:700;font-size:18px;min-height:27px;color:var(--minute)}
+.ctl-row{display:flex;flex-wrap:wrap;gap:8px}
+.ctl-row .btn{flex:1 1 auto}
+.jump .btn{flex:1 1 calc(25% - 8px)}
+
+/* ---------- PLAY ---------- */
+.play-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px}
+.play-head h2{margin:0;font-size:30px;letter-spacing:-.01em}
+.play-head p{margin:2px 0 0;color:var(--muted);font-weight:500}
+.acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.act{padding:20px;text-align:left;display:flex;flex-direction:column;gap:12px;border:2px solid var(--line);background:var(--panel);border-radius:var(--r);box-shadow:var(--shadow);transition:transform .12s}
+.act:hover{transform:translateY(-3px)}
+.act .ico{width:64px;height:64px;border-radius:18px;display:grid;place-items:center}
+.act .ico svg{width:40px;height:40px}
+.act h3{margin:0;font-size:21px}
+.act p{margin:0;color:var(--muted);font-weight:500;font-size:15px;line-height:1.45;flex:1}
+.stars{display:flex;gap:3px}
+.stars svg{width:24px;height:24px}
+.stars .s-on{fill:var(--accent);stroke:#C98E00}
+.stars .s-off{fill:none;stroke:var(--line);stroke-width:2}
+
+.game{max-width:1200px;margin:0 auto}
+.g-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.g-top h2{margin:0;font-size:26px;flex:1;min-width:180px;line-height:1.15}
+.g-top h2 .lv{display:block;font-size:14px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.g-meta{display:flex;gap:8px;align-items:center}
+.pill{background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:7px 14px;font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;background:var(--panel2);padding:4px;border-radius:999px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:7px 14px;font-weight:700;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.dots{display:flex;gap:6px;margin:0 0 16px}
+.dots i{height:8px;flex:1;border-radius:4px;background:var(--line)}
+.dots i.ok{background:var(--good)} .dots i.no{background:var(--bad)} .dots i.now{background:var(--accent)}
+.g-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px;align-items:center}
+.g-clock{width:min(100%, calc(100vh - var(--top) - 210px));min-width:220px;margin:0 auto}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.opt{border:3px solid var(--line);background:var(--panel);border-radius:20px;padding:20px 14px;font-weight:700;font-size:clamp(19px,2vw,26px);min-height:100px;line-height:1.2;box-shadow:var(--shadow)}
+.opt small{display:block;font-size:.7em;color:var(--muted);margin-top:4px;font-weight:600}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 16%,var(--panel))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,var(--panel))}
+.opt:disabled{cursor:default}
+.feedback{margin-top:16px;padding:14px 18px;border-radius:16px;font-weight:600;font-size:17px;display:none;align-items:center;gap:12px}
+.feedback.show{display:flex}
+.feedback.good{background:color-mix(in srgb,var(--good) 16%,var(--panel));border:2px solid var(--good)}
+.feedback.bad{background:color-mix(in srgb,var(--bad) 12%,var(--panel));border:2px solid var(--bad)}
+.feedback span{flex:1}
+.target{text-align:center;padding:22px}
+.target .t-words{font-size:clamp(28px,3.4vw,46px);font-weight:700;line-height:1.15}
+.target .t-dig{font-size:20px;color:var(--muted);font-weight:700;margin-top:6px}
+.setside{display:flex;flex-direction:column;gap:14px}
+
+.mem{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:900px;margin:0 auto;perspective:1200px}
+.card{aspect-ratio:1/1;position:relative;border:0;background:none;padding:0}
+.card .in{position:absolute;inset:0;transition:transform .45s;transform-style:preserve-3d}
+.card.flip .in,.card.done .in{transform:rotateY(180deg)}
+.card .f,.card .b{position:absolute;inset:0;border-radius:20px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:grid;place-items:center;border:3px solid var(--line);box-shadow:var(--shadow)}
+.card .b{background:var(--minute);border-color:var(--minute)}
+.card .b svg{width:42%;opacity:.95}
+.card .f{background:var(--panel);transform:rotateY(180deg);padding:8%;font-weight:700;font-size:clamp(15px,2vw,24px);line-height:1.2;text-align:center}
+.card .f svg{width:100%}
+.card.done .f{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))}
+.card.miss .f{border-color:var(--bad)}
+
+.quick{max-width:980px;margin:0 auto}
+.timer{height:14px;border-radius:7px;background:var(--line);overflow:hidden;margin-bottom:18px}
+.timer i{display:block;height:100%;background:var(--accent);width:100%;transition:width .25s linear}
+.q-state{font-size:clamp(26px,3vw,40px);font-weight:700;text-align:center;line-height:1.2;margin-bottom:18px}
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tf .btn{min-height:96px;font-size:28px;border-width:3px}
+.tf .t{background:color-mix(in srgb,var(--good) 14%,var(--panel));border-color:var(--good)}
+.tf .f{background:color-mix(in srgb,var(--bad) 12%,var(--panel));border-color:var(--bad)}
+.flash-good{animation:fg .4s} .flash-bad{animation:fb .4s}
+@keyframes fg{0%{box-shadow:0 0 0 0 var(--good)}50%{box-shadow:0 0 0 14px color-mix(in srgb,var(--good) 40%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes fb{0%,100%{transform:none}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+.modal{position:fixed;inset:0;background:rgba(10,16,32,.55);display:none;place-items:center;z-index:50;padding:20px}
+.modal.show{display:grid}
+.modal .panel{max-width:460px;width:100%;padding:30px;text-align:center}
+.modal h2{margin:0 0 4px;font-size:30px}
+.modal p{margin:0 0 18px;color:var(--muted);font-weight:500;font-size:17px}
+.modal .stars{justify-content:center;margin:10px 0 16px}
+.modal .stars svg{width:54px;height:54px}
+.modal .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.confetti{position:fixed;top:-20px;width:10px;height:16px;z-index:60;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+/* ---------- PRINT TAB ---------- */
+.print-wrap{display:grid;grid-template-columns:360px minmax(0,1fr);gap:22px;align-items:start}
+.pctl{padding:20px;position:sticky;top:calc(var(--top) + 16px);display:flex;flex-direction:column;gap:18px;max-height:calc(100vh - var(--top) - 36px);overflow:auto}
+.pctl h2{margin:0;font-size:24px}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.types button{border:2px solid var(--line);background:var(--panel);border-radius:14px;padding:10px;text-align:left;font-weight:700;font-size:14px;line-height:1.25}
+.types button small{display:block;font-weight:500;color:var(--muted);font-size:12px;margin-top:2px}
+.types button[aria-pressed="true"]{border-color:var(--ink);background:var(--panel2);box-shadow:inset 0 0 0 1px var(--ink)}
+.pctl .chips .chip{padding:6px 12px;font-size:13.5px}
+.pctl .seg button{padding:6px 12px;font-size:13px}
+.seedrow{display:flex;gap:8px;align-items:center}
+.seedrow input{font:inherit;font-weight:700;width:96px;padding:8px 10px;border-radius:12px;border:2px solid var(--line);background:var(--panel);color:var(--ink);text-transform:uppercase;letter-spacing:.1em}
+.pctl .opt-off{opacity:.38;pointer-events:none}
+.pages{display:flex;flex-direction:column;align-items:center;gap:22px;padding-bottom:40px}
+.pages .sheet{zoom:var(--z,.62);box-shadow:0 10px 40px rgba(0,0,0,.15)}
+.page-cap{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:-14px}
+
+/* ---------- worksheet (A4) ---------- */
+.sheet{width:210mm;height:297mm;padding:11mm 12mm 10mm;background:#fff;color:#111;font-family:'Poppins',sans-serif;display:flex;flex-direction:column;overflow:hidden;position:relative;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ws-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8mm;border-bottom:.6mm solid #111;padding-bottom:3.5mm;height:31mm;flex:none}
+.ws-head .tt{min-width:0}
+.ws-badge{display:inline-block;font-size:3mm;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:.35mm solid #111;border-radius:99px;padding:.6mm 3mm;margin-bottom:1.6mm}
+.ws-badge.key{background:#111;color:#fff}
+.ws-head h1{margin:0;font-size:9mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;letter-spacing:-.02em;font-weight:700}
+.ws-head p{margin:2mm 0 0;font-size:3.6mm;line-height:1.3;font-weight:500;color:#333}
+.ws-name{display:grid;grid-template-columns:auto 52mm;gap:3mm 2.5mm;align-items:end;font-size:3.6mm;font-weight:600;padding-top:3mm;flex:none}
+.ws-name i{border-bottom:.35mm solid #111;height:6mm}
+.ws-body{flex:1;min-height:0;padding:4mm 0 3mm;display:flex;flex-direction:column}
+.ws-foot{height:17mm;flex:none;border-top:.35mm solid #111;padding-top:2.5mm;display:flex;align-items:center;gap:5mm}
+.ws-tip{flex:1;font-size:3.3mm;line-height:1.3;font-weight:500;color:#222}
+.ws-tip b{font-weight:700}
+.ws-self{display:flex;gap:2.6mm;align-items:center}
+.ws-self div{text-align:center;font-size:2.3mm;font-weight:600;width:14mm;line-height:1.15}
+.ws-self svg{width:8mm;height:8mm;display:block;margin:0 auto .6mm}
+.ws-score{border:.4mm solid #111;border-radius:2.5mm;padding:1.4mm 3mm;font-size:3.4mm;font-weight:700;white-space:nowrap}
+.ws-code{position:absolute;right:12mm;bottom:3.4mm;font-size:2.4mm;color:#777;font-weight:500}
+.ws-grid{display:grid;flex:1;min-height:0}
+.ws-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm}
+.ws-n{position:absolute;top:1mm;left:2mm;width:5.6mm;height:5.6mm;border-radius:50%;background:#111;color:#fff;font-size:3mm;font-weight:700;display:grid;place-items:center}
+.ws-dig{display:flex;align-items:center;gap:1.4mm;font-size:6mm;font-weight:700}
+.ws-dig span{width:13mm;height:10mm;border:.4mm solid #111;border-radius:1.6mm;display:grid;place-items:center;font-size:5.4mm;color:#1a5fd0}
+.ws-line{width:86%;height:9mm;border-bottom:.35mm solid #111;display:flex;align-items:flex-end;justify-content:center;font-size:4mm;font-weight:600;color:#1a5fd0;padding-bottom:.6mm;position:relative}
+.ws-line:before{content:"";position:absolute;left:0;right:0;top:4.4mm;border-top:.25mm dashed #aaa}
+.ws-line.solo:before{display:none}
+.ws-grid.compact .ws-cell{gap:1.2mm}
+.ws-grid.compact .ws-label{font-size:3.9mm}
+.ws-grid.compact .ws-label small{font-size:3.3mm}
+.ws-cell .ws-label{padding:0 8.5mm;max-width:100%}
+.ws-grid.compact .ws-dig span{height:8.5mm;width:12mm;font-size:5mm}
+.ws-grid.compact .ws-line{height:7.5mm}
+.ws-label{text-align:center;font-weight:700;font-size:4.6mm;line-height:1.15}
+.ws-label small{display:block;font-size:3.6mm;font-weight:600;color:#444;margin-top:.6mm}
+.ws-sec{font-size:4.2mm;font-weight:700;margin:0 0 1mm;display:flex;align-items:center;gap:2mm}
+.ws-sec:before{content:"";width:3mm;height:3mm;background:#111;border-radius:50%}
+.ws-three{width:100%;border-collapse:collapse;table-layout:fixed}
+.ws-three th{font-size:3.4mm;font-weight:700;text-align:center;border-bottom:.5mm solid #111;padding:1.4mm 0;letter-spacing:.06em;text-transform:uppercase}
+.ws-three td{border-bottom:.3mm solid #999;text-align:center;vertical-align:middle;height:34mm;padding:0 2mm}
+.ws-three td+td{border-left:.3mm solid #ccc}
+.ws-three .given{font-size:7mm;font-weight:700}
+.ws-three .givenw{font-size:4.8mm;font-weight:700;line-height:1.2}
+.ws-three .ws-dig{justify-content:center}
+.ws-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;font-size:3.2mm;line-height:1.3;font-weight:500}
+.ws-steps b{display:block;font-size:3.6mm}
+
+@page{size:A4 portrait;margin:0}
+@media print{
+  html,body{background:#fff!important;height:auto}
+  .top,#learn,#play,.pctl,.page-cap,.modal{display:none!important}
+  main{padding:0;max-width:none}
+  #print{display:block!important}
+  .print-wrap{display:block}
+  .pages{display:block;padding:0;gap:0}
+  .pages .sheet{zoom:1;box-shadow:none;break-after:page;page-break-after:always}
+  .pages .sheet:last-child{break-after:auto;page-break-after:auto}
+}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){
+  .print-wrap{grid-template-columns:1fr}
+  .pctl{position:static;max-height:none}
+}
+@media (max-width:900px), (orientation:portrait) and (max-width:1100px){
+  .learn{grid-template-columns:1fr;min-height:0}
+  .learn-clock .clock-wrap{width:min(100%,560px)}
+  .g-body{grid-template-columns:1fr}
+  .g-clock{width:min(100%,420px)}
+}
+@media (max-width:720px){
+  :root{--top:64px}
+  .top{gap:8px;padding:0 10px}
+  .brand small{display:none}
+  .brand b{font-size:18px}
+  .brand svg{width:36px;height:36px}
+  .tabs{position:fixed;bottom:0;left:0;right:0;border-radius:0;justify-content:space-around;padding:8px 8px calc(8px + env(safe-area-inset-bottom));z-index:30;border-top:2px solid var(--line);background:var(--bg)}
+  .tabs button{flex:1;justify-content:center;padding:10px 6px;font-size:15px}
+  main{padding:14px 12px 96px}
+  .tools .hide-sm{display:none}
+  .options{grid-template-columns:1fr}
+  .opt{min-height:68px;padding:12px}
+  .mem{grid-template-columns:repeat(3,1fr);gap:10px}
+  .jump .btn{flex:1 1 calc(50% - 8px)}
+  .pages .sheet{zoom:var(--z,.42)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#FFC23C"/><circle cx="32" cy="32" r="22" fill="#fff" stroke="#1D2B4F" stroke-width="4"/><g stroke="#1D2B4F" stroke-width="2.6" stroke-linecap="round"><path d="M32 13.5v3.5M50.5 32H47M32 50.5V47M13.5 32H17"/></g><path d="M32 32 22.5 26" stroke="#F2545B" stroke-width="5" stroke-linecap="round"/><path d="M32 32 43 18.5" stroke="#2F7DE1" stroke-width="3.6" stroke-linecap="round"/><circle cx="32" cy="32" r="3.4" fill="#1D2B4F"/></svg>
+    <div><b>Clockwise</b><small>Telling the time</small></div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="learn" aria-selected="true">Learn</button>
+    <button role="tab" data-tab="play" aria-selected="false">Play</button>
+    <button role="tab" data-tab="print" aria-selected="false">Worksheets</button>
+  </nav>
+  <div class="tools">
+    <button class="icon-btn" id="installBtn" title="Install app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Install</button>
+    <button class="icon-btn" id="soundBtn" title="Sound" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path class="wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+    <button class="icon-btn" id="contrastBtn" title="High contrast" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
+    <button class="icon-btn hide-sm" id="fsBtn" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  </div>
+</header>
+
+<main>
+<!-- ================= LEARN ================= -->
+<section id="learn" role="tabpanel">
+  <div class="learn">
+    <div class="learn-clock">
+      <div class="clock-wrap" id="learnClock"></div>
+      <div class="legend">
+        <span><em style="width:22px;background:var(--hour)"></em>Short hand = hour</span>
+        <span><em style="width:34px;background:var(--minute)"></em>Long hand = minutes</span>
+      </div>
+      <div class="drag-hint">Drag the long hand around the clock. The short hand moves with it.</div>
+    </div>
+    <div class="learn-side">
+      <div class="panel readout" id="readout"></div>
+      <div class="panel explain" id="explain"></div>
+      <div>
+        <p class="label">Jump to</p>
+        <div class="ctl-row jump">
+          <button class="btn" data-jump="0">O’clock</button>
+          <button class="btn" data-jump="15">Quarter past</button>
+          <button class="btn" data-jump="30">Half past</button>
+          <button class="btn" data-jump="45">Quarter to</button>
+        </div>
+      </div>
+      <div class="ctl-row jump">
+        <button class="btn" data-step="-60" title="Back one hour">− 1 hour</button>
+        <button class="btn" data-step="-5" title="Back five minutes">− 5 min</button>
+        <button class="btn" data-step="5" title="Forward five minutes">+ 5 min</button>
+        <button class="btn" data-step="60" title="Forward one hour">+ 1 hour</button>
+      </div>
+      <div class="ctl-row">
+        <button class="btn yellow" id="countBtn">Count by 5s</button>
+        <button class="btn" id="randBtn">Random time</button>
+        <button class="btn" id="askBtn" aria-pressed="false">Ask the class</button>
+      </div>
+      <div>
+        <p class="label">Show</p>
+        <div class="chips" id="learnToggles">
+          <button class="switch" data-tog="labels"><i></i>Minute numbers</button>
+          <button class="switch" data-tog="pastTo"><i></i>Past &amp; to</button>
+          <button class="switch" data-tog="digital"><i></i>Digital time</button>
+          <button class="switch" data-tog="words"><i></i>Time in words</button>
+          <button class="switch" data-tog="numWords" id="numWordsTog"><i></i>Number words</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLAY ================= -->
+<section id="play" role="tabpanel" hidden>
+  <div id="playHome">
+    <div class="play-head">
+      <div><h2>Activities</h2><p>Pick a focus, then choose an activity.</p></div>
+    </div>
+    <p class="label">Focus</p>
+    <div class="chips" id="levelChips" style="margin-bottom:22px"></div>
+    <div class="acts" id="acts"></div>
+  </div>
+  <div id="gameView" hidden></div>
+</section>
+
+<!-- ================= PRINT ================= -->
+<section id="print" role="tabpanel" hidden>
+  <div class="print-wrap">
+    <div class="panel pctl" id="pctl">
+      <div><h2>Worksheets</h2><p style="margin:4px 0 0;color:var(--muted);font-weight:500;font-size:14px">A4 sheets for after the lesson. Every set has a code so the answer key always matches.</p></div>
+      <div><p class="label">Worksheet</p><div class="types" id="wsTypes"></div></div>
+      <div><p class="label">Focus</p><div class="chips" id="wsLevels"></div></div>
+      <div id="wsCountRow"><p class="label">Clocks per page</p><div class="seg" id="wsCount"></div></div>
+      <div id="wsAnsRow"><p class="label">Students write</p><div class="seg" id="wsAns"></div></div>
+      <div id="wsShowRow"><p class="label">Times shown as</p><div class="seg" id="wsShow"></div></div>
+      <div><p class="label">Options</p><div class="chips">
+        <button class="switch" id="wsHelpers"><i></i>Minute numbers on clocks</button>
+        <button class="switch" id="wsWords"><i></i>Number words</button>
+        <button class="switch" id="wsKey"><i></i>Answer key</button>
+      </div></div>
+      <div><p class="label">Different versions</p><div class="seg" id="wsVersions"></div></div>
+      <div><p class="label">Set code</p><div class="seedrow"><input id="wsSeed" maxlength="6" aria-label="Set code"><button class="btn small" id="wsNew">New times</button></div></div>
+      <button class="btn primary" id="wsPrint"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Print / save as PDF</button>
+    </div>
+    <div class="pages" id="pages"></div>
+  </div>
+</section>
+</main>
+
+<div class="modal" id="modal"><div class="panel" id="modalBox"></div></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Clockwise — telling the time (analog clock) · single-file PWA
+   ===================================================================== */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const mod = (a, n) => ((a % n) + n) % n;
+
+/* ---------- persisted state ---------- */
+const KEY = 'clockwise.v1';
+const DEF = {
+  sound: true, contrast: false, numWords: true, level: 'oclock', ansFmt: 'words',
+  learn: { labels: true, pastTo: false, digital: true, words: true, t: 180 },
+  best: {},
+  ws: { type: 'read', level: 'half', count: 9, ans: 'both', show: 'words', helpers: false, words: true, key: true, versions: 1, seed: '' }
+};
+let S;
+try { S = Object.assign(structuredClone(DEF), JSON.parse(localStorage.getItem(KEY) || '{}')); S.learn = Object.assign({}, DEF.learn, S.learn); S.ws = Object.assign({}, DEF.ws, S.ws); }
+catch (e) { S = structuredClone(DEF); }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+/* ---------- time language ---------- */
+const NUMW = ['twelve','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'];
+const MINW = { 5: 'five', 10: 'ten', 20: 'twenty', 25: 'twenty-five' };
+const hr12 = t => { const h = Math.floor(mod(t, 720) / 60); return h === 0 ? 12 : h; };
+const nextHr = t => hr12(mod(t, 720) + 60);
+const H = (h, w) => w ? NUMW[h] : String(h);
+const M = (m, w) => w ? MINW[m] : String(m);
+function words(t, w = S.numWords) {
+  t = mod(t, 720); const m = t % 60, h = hr12(t), n = nextHr(t);
+  if (m === 0) return `${H(h, w)} o’clock`;
+  if (m === 15) return `quarter past ${H(h, w)}`;
+  if (m === 30) return `half past ${H(h, w)}`;
+  if (m === 45) return `quarter to ${H(n, w)}`;
+  if (m < 30) return `${M(m, w)} past ${H(h, w)}`;
+  return `${M(60 - m, w)} to ${H(n, w)}`;
+}
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const digital = t => { t = mod(t, 720); return `${hr12(t)}:${String(t % 60).padStart(2, '0')}`; };
+function wordsHTML(t) {
+  const s = cap(words(t)); const m = mod(t, 60);
+  if (m === 0) return s;
+  return s.replace(/ (past|to) /, (x, k) => ` <span class="w-${k}">${k}</span> `);
+}
+
+/* ---------- levels ---------- */
+const LEVELS = [
+  { id: 'oclock', label: 'O’clock', mins: [0] },
+  { id: 'half', label: 'Half past', mins: [30] },
+  { id: 'qpast', label: 'Quarter past', mins: [15] },
+  { id: 'qto', label: 'Quarter to', mins: [45] },
+  { id: 'quarters', label: 'All quarters', mins: [0, 15, 30, 45] },
+  { id: 'five', label: '5 minutes', mins: [5, 10, 20, 25, 35, 40, 50, 55] },
+  { id: 'mix', label: 'Mix it up', mins: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55] }
+];
+const LV = Object.fromEntries(LEVELS.map(l => [l.id, l]));
+const ALL5 = LV.mix.mins;
+const pool = id => { const out = []; for (let h = 0; h < 12; h++) for (const m of LV[id].mins) out.push(h * 60 + m); return out; };
+const TIPS = {
+  oclock: '<b>O’clock:</b> the long hand points straight up to 12. The short hand shows the hour.',
+  half: '<b>Half past:</b> the long hand points to 6. The short hand is half way between two numbers.',
+  qpast: '<b>Quarter past:</b> the long hand points to 3 — a quarter of the way around.',
+  qto: '<b>Quarter to:</b> the long hand points to 9. Say the <b>next</b> hour!',
+  quarters: '<b>12</b> = o’clock · <b>3</b> = quarter past · <b>6</b> = half past · <b>9</b> = quarter to',
+  five: 'Each number on the clock is <b>5 minutes</b>. Count by 5s from the 12.',
+  mix: 'Right side of the clock = <b>past</b>. Left side = <b>to</b> the next hour. Each number is 5 minutes.'
+};
+
+/* ---------- seeded random ---------- */
+function hashStr(s) { let h = 2166136261 >>> 0; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng(seed) { let a = typeof seed === 'number' ? seed >>> 0 : hashStr(String(seed)); return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+let R = rng(Date.now());
+const shuffle = (arr, r = R) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = (arr, r = R) => arr[Math.floor(r() * arr.length)];
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const newCode = () => Array.from({ length: 4 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
+
+/* ---------- clock drawing ---------- */
+const P = (a, r) => [+(r * Math.sin(a * Math.PI / 180)).toFixed(3), +(-r * Math.cos(a * Math.PI / 180)).toFixed(3)];
+function sector(a0, a1, r) {
+  if (a1 - a0 <= 0) return '';
+  if (a1 - a0 >= 360) a1 = a0 + 359.99;
+  const [x0, y0] = P(a0, r), [x1, y1] = P(a1, r);
+  return `M0 0L${x0} ${y0}A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1} ${y1}Z`;
+}
+function handPath(len, w, tail = 14) {
+  const hw = w / 2, k = len - w * 1.3;
+  return `M${-hw} ${tail}L${-hw} ${-k}L0 ${-len}L${hw} ${-k}L${hw} ${tail}Z`;
+}
+const HOUR_LEN = 50, HOUR_W = 11, MIN_LEN = 86, MIN_W = 7;
+const angH = t => mod(t, 720) * 0.5;
+const angM = t => mod(t, 60) * 6;
+
+/* clockSVG(t, opts)
+   opts.theme: 'screen' | 'print'; opts.hands: bool; opts.labels: bool (minute numbers ring);
+   opts.pastTo: bool; opts.width: css width; opts.interactive: bool (keeps every element for updating) */
+function clockSVG(t, o = {}) {
+  const pr = o.theme === 'print';
+  const lab = !!o.labels;
+  const vb = o.interactive ? 132 : (lab ? 130 : 107);
+  const hands = o.hands !== false;
+  let s = `<svg class="clock${pr ? ' pclock' : ''}" viewBox="${-vb} ${-vb} ${vb * 2} ${vb * 2}" xmlns="http://www.w3.org/2000/svg"${o.width ? ` style="width:${o.width}"` : ''}${pr ? ' font-family="Poppins, sans-serif"' : ''} role="img" aria-label="${hands ? 'Clock showing ' + words(t) : 'Blank clock face'}">`;
+  // face
+  s += pr ? `<circle r="103" fill="#111"/><circle r="99" fill="#fff"/>` : `<circle class="c-rim" r="105"/><circle class="c-face" r="99"/>`;
+  // past/to overlay
+  if (!pr && (o.interactive || o.pastTo)) {
+    s += `<g class="ptg"${o.pastTo ? '' : ' style="display:none"'}><path class="pt-past" d="${sector(0, 180, 99)}"/><path class="pt-to" d="${sector(180, 360, 99)}"/><path class="sec" d=""/></g>`;
+  }
+  // ticks
+  for (let i = 0; i < 60; i++) {
+    const big = i % 5 === 0; const [x0, y0] = P(i * 6, big ? 85 : 90), [x1, y1] = P(i * 6, 95);
+    s += pr ? `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="#111" stroke-width="${big ? 3.2 : 1.3}" stroke-linecap="round"/>`
+            : `<line class="c-tick" x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke-width="${big ? 3.4 : 1.4}"/>`;
+  }
+  // minute labels ring
+  if (lab || o.interactive) {
+    s += `<g class="mlg"${lab ? '' : ' style="display:none"'}>`;
+    for (let i = 0; i < 12; i++) {
+      const [x, y] = P(i * 30, 119);
+      const v = i === 0 ? '0' : String(i * 5);
+      s += pr ? `<text x="${x}" y="${y}" fill="#555" font-weight="600" font-size="12" text-anchor="middle" dominant-baseline="central">${v}</text>`
+              : `<circle class="c-mlb" data-i="${i}" cx="${x}" cy="${y}" r="11"/><text class="c-ml" data-i="${i}" x="${x}" y="${y}" font-size="12.5" text-anchor="middle" dominant-baseline="central">${v}</text>`;
+    }
+    s += `</g>`;
+  }
+  // hands
+  if (hands) {
+    const hA = angH(t), mA = angM(t);
+    s += pr
+      ? `<path class="hand-h" data-angle="${hA}" d="${handPath(HOUR_LEN, HOUR_W)}" style="fill:#E8434A;stroke:#B8262D" stroke-width="1.6" stroke-linejoin="round" transform="rotate(${hA})"/><path class="hand-m" data-angle="${mA}" d="${handPath(MIN_LEN, MIN_W)}" style="fill:#1F6FD6;stroke:#124E9C" stroke-width="1.6" stroke-linejoin="round" transform="rotate(${mA})"/><circle r="6.5" fill="#111"/><circle r="2.4" fill="#fff"/>`
+      : `<path class="hand-h" data-angle="${hA}" d="${handPath(HOUR_LEN, HOUR_W)}" stroke-width="2.4" stroke-linejoin="round" transform="rotate(${hA})"/><path class="hand-m" data-angle="${mA}" d="${handPath(MIN_LEN, MIN_W)}" stroke-width="2.4" stroke-linejoin="round" transform="rotate(${mA})"/><circle class="cap" r="8"/><circle class="cap2" r="3"/>`;
+  } else {
+    s += pr ? `<circle r="3.2" fill="#111"/>` : `<circle class="cap" r="4"/>`;
+  }
+  // hour numbers — drawn above the hands with a halo so the number under the long hand stays readable
+  for (let n = 1; n <= 12; n++) {
+    const [x, y] = P(n * 30, 70);
+    s += `<text ${pr ? 'fill="#111" font-weight="700" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke"' : 'class="c-num"'} x="${x}" y="${y}" font-size="21" text-anchor="middle" dominant-baseline="central">${n}</text>`;
+  }
+  return s + `</svg>`;
+}
+
+/* ---------- interactive clock ---------- */
+class Clock {
+  constructor(el, o = {}) {
+    this.el = el; this.o = o; this.t = o.t ?? 180; this.shown = this.t; this.anim = 0;
+    el.innerHTML = clockSVG(this.t, { interactive: true, labels: o.labels, pastTo: o.pastTo });
+    this.svg = $('svg', el); this.hh = $('.hand-h', el); this.hm = $('.hand-m', el);
+    this.ptg = $('.ptg', el); this.sec = $('.sec', el); this.mlg = $('.mlg', el);
+    if (o.drag) this.bindDrag();
+    this.draw(this.t);
+  }
+  get value() { return mod(this.t, 720); }
+  setOpts(o) { Object.assign(this.o, o); this.mlg.style.display = this.o.labels ? '' : 'none'; this.ptg.style.display = this.o.pastTo ? '' : 'none'; this.draw(this.shown); }
+  draw(td) {
+    this.hh.setAttribute('transform', `rotate(${td * 0.5})`);
+    this.hm.setAttribute('transform', `rotate(${td * 6})`);
+    const v = mod(Math.round(td), 720), m = v % 60;
+    this.svg.setAttribute('aria-label', 'Clock showing ' + words(v));
+    if (this.o.pastTo) {
+      if (m === 0) this.sec.setAttribute('d', '');
+      else if (m <= 30) { this.sec.setAttribute('d', sector(0, m * 6, 99)); this.sec.setAttribute('class', 'sec sec-past'); }
+      else { this.sec.setAttribute('d', sector(m * 6, 360, 99)); this.sec.setAttribute('class', 'sec sec-to'); }
+    }
+  }
+  set(t, animate = true) {
+    // choose shortest visual route
+    const cur = this.t; let d = mod(t - cur, 720); if (d > 360) d -= 720;
+    this.t = cur + d;
+    if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { this.shown = this.t; this.draw(this.t); this.changed(); return; }
+    const from = this.shown, to = this.t, t0 = performance.now(), dur = Math.min(900, 260 + Math.abs(to - from) * 4);
+    cancelAnimationFrame(this.anim);
+    const step = now => {
+      const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      this.shown = from + (to - from) * e; this.draw(this.shown);
+      if (k < 1) this.anim = requestAnimationFrame(step); else { this.shown = to; this.draw(to); }
+    };
+    this.anim = requestAnimationFrame(step); this.changed();
+  }
+  add(d) { this.set(this.t + d); }
+  changed() { this.o.onChange && this.o.onChange(this.value); }
+  pt(e) { const p = this.svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(this.svg.getScreenCTM().inverse()); const a = mod(Math.atan2(q.x, -q.y) * 180 / Math.PI, 360); return { a, d: Math.hypot(q.x, q.y) }; }
+  bindDrag() {
+    const svg = this.svg; svg.classList.add('draggable');
+    let mode = null, lastM = null;
+    const angDiff = (a, b) => { const d = mod(a - b, 360); return Math.min(d, 360 - d); };
+    svg.addEventListener('pointerdown', e => {
+      const { a, d } = this.pt(e);
+      if (d > 128) return;
+      cancelAnimationFrame(this.anim); this.shown = this.t;
+      mode = (d < 64 && angDiff(a, angH(this.t)) < 28 && angDiff(a, angH(this.t)) < angDiff(a, angM(this.t))) ? 'h' : 'm';
+      svg.setPointerCapture(e.pointerId); svg.classList.add('dragging'); lastM = mod(this.t, 60);
+      this.move(e, mode); e.preventDefault();
+    });
+    svg.addEventListener('pointermove', e => { if (mode) this.move(e, mode); });
+    const end = () => { if (!mode) return; mode = null; svg.classList.remove('dragging'); this.o.onDragEnd && this.o.onDragEnd(this.value); };
+    svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
+  }
+  move(e, mode) {
+    const { a } = this.pt(e); const step = this.o.step || 5; const before = this.t;
+    if (mode === 'm') {
+      const m = mod(Math.round(a / 6 / step) * step, 60); let d = m - mod(this.t, 60);
+      if (d < -30) d += 60; if (d > 30) d -= 60; this.t += d;
+    } else {
+      const tgt = mod(Math.round(a * 2 / step) * step, 720); let d = mod(tgt - mod(this.t, 720), 720); if (d > 360) d -= 720; this.t += d;
+    }
+    if (this.t !== before) { this.shown = this.t; this.draw(this.t); Sound.tick(); this.changed(); }
+  }
+  highlight(i) { $$('.c-ml,.c-mlb', this.el).forEach(n => n.classList.toggle('on', i != null && (Array.isArray(i) ? i.includes(+n.dataset.i) : +n.dataset.i === i))); }
+}
+
+/* ---------- sound (Web Audio) ---------- */
+const Sound = (() => {
+  let ctx;
+  const ac = () => (ctx ||= new (window.AudioContext || window.webkitAudioContext)());
+  function tone(f, d = .12, type = 'sine', vol = .18, when = 0) {
+    if (!S.sound) return; try {
+      const c = ac(), o = c.createOscillator(), g = c.createGain(), t0 = c.currentTime + when;
+      o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + .01); g.gain.exponentialRampToValueAtTime(.0001, t0 + d);
+      o.connect(g).connect(c.destination); o.start(t0); o.stop(t0 + d + .02);
+    } catch (e) {}
+  }
+  return {
+    tick() { tone(2200, .03, 'square', .035); },
+    good() { tone(660, .14, 'sine', .2); tone(990, .22, 'sine', .2, .1); },
+    bad() { tone(220, .22, 'triangle', .18); },
+    flip() { tone(520, .06, 'triangle', .1); },
+    fanfare() { [523, 659, 784, 1047].forEach((f, i) => tone(f, .25, 'sine', .18, i * .12)); },
+    count() { tone(880, .08, 'sine', .14); }
+  };
+})();
+function sayTime(t) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(`It's ${words(t, true)}.`);
+  const v = speechSynthesis.getVoices().find(v => /en[-_]AU/i.test(v.lang)) || speechSynthesis.getVoices().find(v => /^en/i.test(v.lang));
+  if (v) u.voice = v; u.lang = 'en-AU'; u.rate = .9; speechSynthesis.speak(u);
+}
+
+/* ---------- small svg bits ---------- */
+const starSVG = on => `<svg viewBox="0 0 24 24"><path class="${on ? 's-on' : 's-off'}" stroke-width="1.5" stroke-linejoin="round" d="M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.2l-5.8 3.2 1.2-6.5L2.6 9.4l6.5-.8z"/></svg>`;
+const starsHTML = n => `<div class="stars" aria-label="${n} of 3 stars">${[0, 1, 2].map(i => starSVG(i < n)).join('')}</div>`;
+
+/* ================= LEARN ================= */
+const learnClock = new Clock($('#learnClock'), { t: S.learn.t, drag: true, labels: S.learn.labels, pastTo: S.learn.pastTo, onChange: v => { S.learn.t = v; stopCount(); renderLearn(); }, onDragEnd: save });
+let asking = false, countTimer = null;
+function explainFor(t) {
+  const m = t % 60, h = hr12(t), n = nextHr(t), w = S.numWords;
+  const hn = H(h, w), nn = H(n, w);
+  if (m === 0) return ['O’clock', 'var(--ink)', `The long minute hand points straight up to <b>12</b>. The short hour hand points to <b>${h}</b>. We say <b>${hn} o’clock</b>.`];
+  if (m === 30) return ['Half past', 'var(--past)', `The long hand has gone <b>half way</b> around the clock, to the <b>6</b>. That’s 30 minutes. The short hand is half way between ${h} and ${n}. We say <b>half past ${hn}</b>.`];
+  if (m === 15) return ['Quarter past', 'var(--past)', `The long hand has gone a <b>quarter</b> of the way around, to the <b>3</b>. That’s 15 minutes past ${h}. We say <b>quarter past ${hn}</b>.`];
+  if (m === 45) return ['Quarter to', 'var(--to)', `The long hand points to the <b>9</b>. There is only a <b>quarter</b> of an hour left until ${n} o’clock, so we say <b>quarter to ${nn}</b>. Look — the short hand is nearly at ${n}!`];
+  if (m < 30) return ['Minutes past', 'var(--past)', `The long hand points to the <b>${m / 5}</b>. Count by 5s from the 12: ${Array.from({ length: m / 5 }, (_, i) => (i + 1) * 5).join(', ')}. That’s <b>${m} minutes past ${h}</b>. We say <b>${words(t)}</b>.`];
+  return ['Minutes to', 'var(--to)', `The long hand points to the <b>${m / 5}</b>. It has gone past the 6, so we count on to the 12: ${Array.from({ length: (60 - m) / 5 }, (_, i) => (i + 1) * 5).join(', ')}. That’s <b>${60 - m} minutes to ${n}</b>. We say <b>${words(t)}</b>.`];
+}
+function renderLearn() {
+  const t = learnClock.value;
+  const sayBtn = `<button class="icon-btn say" id="sayBtn" title="Say the time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg></button>`;
+  if (asking) {
+    $('#readout').innerHTML = `<div class="ask">What time is it?</div><button class="btn yellow" id="revealBtn">Reveal the time</button>`;
+    $('#explain').innerHTML = `<h3>Think, pair, share</h3><p>Look at the <b>long hand</b> first — where is it pointing? Then look at the <b>short hand</b>. Tell your partner the time.</p>`;
+    $('#revealBtn').onclick = () => { asking = false; $('#askBtn').setAttribute('aria-pressed', 'false'); Sound.good(); renderLearn(); };
+    return;
+  }
+  const L = S.learn;
+  let html = sayBtn;
+  if (L.digital) html += `<div class="digital">${digital(t)}</div>`;
+  if (L.words) html += `<div class="words">${wordsHTML(t)}</div>`;
+  if (!L.digital && !L.words) html += `<div class="ask" style="font-size:22px;color:var(--muted)">Turn on digital time or time in words to see the answer.</div>`;
+  $('#readout').innerHTML = html;
+  $('#sayBtn').onclick = () => sayTime(t);
+  const [title, col, text] = explainFor(t);
+  $('#explain').innerHTML = `<h3><span class="dot" style="background:${col}"></span>${title}</h3><p>${text}</p><div class="count" id="countOut"></div>`;
+}
+function stopCount() { if (countTimer) { clearInterval(countTimer); countTimer = null; } learnClock.highlight(null); }
+function countBy5() {
+  stopCount();
+  const t = learnClock.value, m = t % 60;
+  const out = () => $('#countOut');
+  if (m === 0) { out().textContent = 'The long hand is on 12 — nothing to count. It’s o’clock!'; return; }
+  if (!S.learn.labels) { S.learn.labels = true; learnClock.setOpts({ labels: true }); syncToggles(); }
+  const past = m <= 30, steps = past ? m / 5 : (60 - m) / 5; let k = 0; const seen = [];
+  out().textContent = '';
+  countTimer = setInterval(() => {
+    k++;
+    const idx = past ? k : mod(m / 5 + k, 12); seen.push(idx); learnClock.highlight(seen.slice());
+    out().textContent = Array.from({ length: k }, (_, i) => (i + 1) * 5).join(' … ') + (k === steps ? (past ? `  →  ${m} minutes past ${hr12(t)}` : `  →  ${60 - m} minutes to ${nextHr(t)}`) : '');
+    Sound.count();
+    if (k >= steps) { clearInterval(countTimer); countTimer = null; setTimeout(() => Sound.good(), 250); }
+  }, 650);
+}
+function syncToggles() {
+  $$('#learnToggles .switch').forEach(b => { const k = b.dataset.tog; b.setAttribute('aria-pressed', k === 'numWords' ? S.numWords : S.learn[k]); });
+}
+$$('#learnToggles .switch').forEach(b => b.onclick = () => {
+  const k = b.dataset.tog;
+  if (k === 'numWords') { S.numWords = !S.numWords; S.ws.words = S.numWords; }
+  else { S.learn[k] = !S.learn[k]; if (k === 'labels' || k === 'pastTo') learnClock.setOpts({ [k]: S.learn[k] }); }
+  if (k === 'labels' && !S.learn.labels) stopCount();
+  syncToggles(); renderLearn(); save();
+});
+$$('[data-step]').forEach(b => b.onclick = () => learnClock.add(+b.dataset.step));
+$$('[data-jump]').forEach(b => b.onclick = () => { const base = Math.floor(mod(learnClock.t, 720) / 60) * 60; learnClock.set(base + +b.dataset.jump); });
+$('#randBtn').onclick = () => { let t; do { t = Math.floor(R() * 144) * 5; } while (t === learnClock.value); learnClock.set(t); };
+$('#countBtn').onclick = countBy5;
+$('#askBtn').onclick = () => { asking = !asking; $('#askBtn').setAttribute('aria-pressed', asking); stopCount(); renderLearn(); };
+syncToggles(); renderLearn();
+
+/* ================= PLAY ================= */
+const ACTS = {
+  read: { title: 'What’s the time?', desc: 'Look at the clock and choose the matching time. 10 questions.', col: 'var(--minute)', ico: '<circle cx="20" cy="20" r="15" fill="#fff" stroke="currentColor" stroke-width="3"/><path d="M20 20V9M20 20l7 4" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>' },
+  set: { title: 'Set the clock', desc: 'Drag the hands to show the time. Watch where the short hand ends up!', col: 'var(--hour)', ico: '<circle cx="20" cy="20" r="15" fill="#fff" stroke="currentColor" stroke-width="3"/><path d="M20 20l-6-7" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M26 31l4 7 2-4 4-1-7-4z" fill="currentColor"/>' },
+  match: { title: 'Memory match', desc: 'Flip the cards to find each clock and its time in words.', col: 'var(--past)', ico: '<rect x="4" y="7" width="15" height="22" rx="3" fill="#fff" stroke="currentColor" stroke-width="3"/><rect x="21" y="11" width="15" height="22" rx="3" fill="currentColor"/>' },
+  quick: { title: 'True or false?', desc: '60 seconds on the clock. Is the clock telling the truth?', col: 'var(--to)', ico: '<path d="M8 21l6 6 12-14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 25l7 7m0-7l-7 7" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>' }
+};
+const bestStars = (a, l) => (S.best[a] && S.best[a][l] && S.best[a][l].stars) || 0;
+function renderLevelChips(el, cur, onPick) {
+  el.innerHTML = LEVELS.map(l => `<button class="chip" data-l="${l.id}" aria-pressed="${l.id === cur}">${l.label}</button>`).join('');
+  $$('.chip', el).forEach(b => b.onclick = () => { onPick(b.dataset.l); $$('.chip', el).forEach(c => c.setAttribute('aria-pressed', c === b)); });
+}
+function renderPlayHome() {
+  renderLevelChips($('#levelChips'), S.level, l => { S.level = l; save(); renderActs(); });
+  renderActs();
+}
+function renderActs() {
+  $('#acts').innerHTML = Object.entries(ACTS).map(([k, a]) => `<button class="act" data-act="${k}">
+    <div class="ico" style="background:color-mix(in srgb,${a.col} 18%,var(--panel));color:${a.col}"><svg viewBox="0 0 40 40">${a.ico}</svg></div>
+    <h3>${a.title}</h3><p>${a.desc}</p>${starsHTML(bestStars(k, S.level))}</button>`).join('');
+  $$('#acts .act').forEach(b => b.onclick = () => startGame(b.dataset.act));
+}
+
+function distractors(t, n = 3, lvl = S.level) {
+  t = mod(t, 720); const h = Math.floor(t / 60), m = t % 60;
+  const c = [], add = (x, kind) => { x = mod(x, 720); if (x !== t && !c.some(y => y.t === x)) c.push({ t: x, kind }); };
+  if (m > 30) add(t - 60, 'nexthour');
+  if (m !== 0 && m !== 30) add(h * 60 + (60 - m), 'mirror');
+  if (m !== 0) { const hh = (m / 5) % 12; add(hh * 60 + (hr12(t) * 5) % 60, 'swap'); }
+  if (m === 30) add(t - 30, 'oclock');
+  if (m === 0) add(t + 30, 'half');
+  add(t + 60, 'hour');
+  let out = [];
+  const nh = c.find(x => x.kind === 'nexthour'); if (nh) out.push(nh);
+  for (const x of shuffle(c)) { if (out.length >= n) break; if (!out.includes(x)) out.push(x); }
+  const fill = shuffle(pool(lvl)).concat(shuffle(ALL5.flatMap(mm => Array.from({ length: 12 }, (_, hh) => hh * 60 + mm))));
+  for (const x of fill) { if (out.length >= n) break; if (x !== t && !out.some(y => y.t === x)) out.push({ t: x, kind: 'other' }); }
+  return out.slice(0, n);
+}
+const HINT = {
+  nexthour: 'Remember: after half past we say “to” the <b>next</b> hour.',
+  mirror: 'Check which side the long hand is on: the right side is <b>past</b>, the left side is <b>to</b>.',
+  swap: 'The <b>short</b> hand shows the hour. The <b>long</b> hand shows the minutes.',
+  hour: 'Look carefully at the short hand — which number has it just gone past?',
+  half: 'Where is the long hand pointing? On the 12 it’s o’clock.',
+  oclock: 'Where is the long hand pointing? On the 6 it’s half past.',
+  other: 'Look at the long minute hand first, then the short hour hand.'
+};
+
+let G = null; // current game
+function gameShell(title, extra = '') {
+  $('#playHome').hidden = true; const v = $('#gameView'); v.hidden = false;
+  v.innerHTML = `<div class="game"><div class="g-top"><button class="btn small" id="gBack">← Activities</button><h2>${title}<small class="lv">${LV[S.level].label}</small></h2><div class="g-meta">${extra}</div></div><div id="gArea"></div></div>`;
+  $('#gBack').onclick = endGame;
+}
+function endGame() { if (G && G.cleanup) G.cleanup(); G = null; closeModal(); $('#gameView').hidden = true; $('#gameView').innerHTML = ''; $('#playHome').hidden = false; renderActs(); }
+function startGame(k) { if (G && G.cleanup) G.cleanup(); ({ read: gameRead, set: gameSet, match: gameMatch, quick: gameQuick })[k](); }
+function fmtAns(t) { return S.ansFmt === 'digital' ? `${digital(t)}` : `${cap(words(t))}`; }
+function ansSeg() { return `<div class="seg" id="ansSeg"><button data-f="words" aria-pressed="${S.ansFmt === 'words'}">Words</button><button data-f="digital" aria-pressed="${S.ansFmt === 'digital'}">Digital</button></div>`; }
+function bindAnsSeg(onChange) { $$('#ansSeg button').forEach(b => b.onclick = () => { S.ansFmt = b.dataset.f; save(); $$('#ansSeg button').forEach(x => x.setAttribute('aria-pressed', x === b)); onChange(); }); }
+function dotsHTML(res, total, cur) { return `<div class="dots">${Array.from({ length: total }, (_, i) => `<i class="${res[i] === true ? 'ok' : res[i] === false ? 'no' : i === cur ? 'now' : ''}"></i>`).join('')}</div>`; }
+function questionSet(n) { const p = shuffle(pool(S.level)); const out = []; while (out.length < n) out.push(...shuffle(p)); return out.slice(0, n); }
+
+function finish(act, score, total, stars, msg) {
+  const prev = (S.best[act] ||= {})[S.level] || { stars: 0, score: 0 };
+  const isBest = stars > prev.stars || (act === 'quick' && score > prev.score);
+  S.best[act][S.level] = { stars: Math.max(stars, prev.stars), score: Math.max(score, prev.score || 0) };
+  save();
+  if (stars === 3) { Sound.fanfare(); confetti(); } else Sound.good();
+  openModal(`<h2>${stars === 3 ? 'Brilliant!' : stars === 2 ? 'Great work!' : stars === 1 ? 'Good try!' : 'Keep practising!'}</h2>${starsHTML(stars)}<p>${msg}${isBest && prev.stars + (prev.score || 0) > 0 ? '<br><b>New best!</b>' : ''}</p>
+    <div class="row"><button class="btn primary" id="mAgain">Play again</button><button class="btn" id="mBack">Choose activity</button></div>`);
+  $('#mAgain').onclick = () => { closeModal(); startGame(act); };
+  $('#mBack').onclick = endGame;
+}
+const starsFor = (s, n) => s / n >= .9 ? 3 : s / n >= .7 ? 2 : s / n >= .4 ? 1 : 0;
+
+/* --- Activity 1: What's the time? --- */
+function gameRead() {
+  const N = 10, qs = questionSet(N), res = []; let i = 0, score = 0, opts = [], locked = false;
+  gameShell(ACTS.read.title, ansSeg());
+  bindAnsSeg(() => paintOpts());
+  const me = G = {};
+  const area = $('#gArea');
+  function q() {
+    locked = false; const t = qs[i];
+    opts = shuffle([{ t, kind: 'right' }, ...distractors(t, 3)]);
+    area.innerHTML = `${dotsHTML(res, N, i)}<div class="g-body"><div class="g-clock">${clockSVG(t, { theme: 'screen' })}</div><div><div class="options" id="opts"></div><div class="feedback" id="fb"></div></div></div>`;
+    paintOpts();
+  }
+  function paintOpts() {
+    const el = $('#opts'); if (!el) return;
+    el.innerHTML = opts.map((o, k) => `<button class="opt" data-k="${k}">${fmtAns(o.t)}</button>`).join('');
+    $$('.opt', el).forEach(b => b.onclick = () => answer(+b.dataset.k, b));
+  }
+  function answer(k, btn) {
+    if (locked) return; locked = true; const o = opts[k], t = qs[i];
+    $$('.opt').forEach(b => b.disabled = true);
+    const fb = $('#fb');
+    if (o.kind === 'right') {
+      score++; res[i] = true; btn.classList.add('right'); Sound.good();
+      fb.className = 'feedback show good'; fb.innerHTML = `<span><b>Yes!</b> It’s ${words(t)}.</span>`;
+      setTimeout(next, 1100);
+    } else {
+      res[i] = false; btn.classList.add('wrong'); Sound.bad();
+      $$('.opt').find(b => opts[+b.dataset.k].kind === 'right').classList.add('right');
+      fb.className = 'feedback show bad'; fb.innerHTML = `<span><b>Not quite.</b> It’s ${words(t)} (${digital(t)}). ${HINT[o.kind]}</span><button class="btn small primary" id="nextBtn">Next →</button>`;
+      $('#nextBtn').onclick = next;
+    }
+  }
+  function next() { if (G !== me) return; i++; if (i >= N) return finish('read', score, N, starsFor(score, N), `You got ${score} out of ${N} right.`); q(); }
+  q();
+}
+
+/* --- Activity 2: Set the clock --- */
+function gameSet() {
+  const N = 8, qs = questionSet(N), res = []; let i = 0, score = 0, tries = 0, clock;
+  gameShell(ACTS.set.title);
+  const me = G = {};
+  const area = $('#gArea');
+  function q() {
+    tries = 0; const t = qs[i];
+    area.innerHTML = `${dotsHTML(res, N, i)}<div class="g-body"><div class="g-clock" id="setClock"></div><div class="setside">
+      <div class="panel target"><p class="label" style="margin-bottom:6px">Show this time</p><div class="t-words">${cap(words(t))}</div><div class="t-dig">${digital(t)}</div></div>
+      <div class="ctl-row"><button class="btn small" data-s="-60">− hour</button><button class="btn small" data-s="-5">− 5 min</button><button class="btn small" data-s="5">+ 5 min</button><button class="btn small" data-s="60">+ hour</button></div>
+      <button class="btn primary" id="checkBtn" style="min-height:64px;font-size:20px">Check my clock</button>
+      <div class="feedback" id="fb"></div></div></div>`;
+    let start; do { start = Math.floor(R() * 12) * 60; } while (start === t);
+    clock = new Clock($('#setClock'), { t: start, drag: true, labels: S.level === 'five' || S.level === 'mix' });
+    $$('[data-s]', area).forEach(b => b.onclick = () => clock.add(+b.dataset.s));
+    $('#checkBtn').onclick = check;
+  }
+  function check() {
+    const t = qs[i], v = clock.value, fb = $('#fb');
+    if (v === t) {
+      if (res[i] === undefined) { res[i] = true; score++; }
+      Sound.good(); fb.className = 'feedback show good'; fb.innerHTML = `<span><b>Perfect!</b> That’s ${words(t)}.</span>`;
+      $('#checkBtn').disabled = true; setTimeout(next, 1200); return;
+    }
+    tries++; Sound.bad();
+    const mRight = v % 60 === t % 60;
+    let hint = mRight ? `The long hand is right! Now check the short hand${t % 60 > 30 ? ` — for “to” times it is nearly at <b>${nextHr(t)}</b>` : t % 60 ? ` — it should be just past <b>${hr12(t)}</b>` : ` — it should point to <b>${hr12(t)}</b>`}.`
+                      : `Move the long hand first. It should point to the <b>${t % 60 === 0 ? 12 : (t % 60) / 5}</b>.`;
+    if (tries >= 2) {
+      res[i] = false; clock.set(t);
+      fb.className = 'feedback show bad'; fb.innerHTML = `<span>Here’s how it looks. Notice where the short hand sits.</span><button class="btn small primary" id="nextBtn">Next →</button>`;
+      $('#checkBtn').disabled = true; $('#nextBtn').onclick = next;
+    } else { fb.className = 'feedback show bad'; fb.innerHTML = `<span><b>Not yet.</b> ${hint}</span>`; }
+  }
+  function next() { if (G !== me) return; i++; if (i >= N) return finish('set', score, N, starsFor(score, N), `You set ${score} out of ${N} clocks correctly.`); q(); }
+  q();
+}
+
+/* --- Activity 3: Memory match --- */
+function gameMatch() {
+  const times = shuffle(pool(S.level).length >= 6 ? pool(S.level) : pool('mix')).slice(0, 6);
+  const cards = shuffle(times.flatMap(t => [{ t, k: 'c' }, { t, k: 'w' }]));
+  let open = [], moves = 0, found = 0, busy = false;
+  gameShell(ACTS.match.title, `<span class="pill" id="mvs">Moves: 0</span><span class="pill" id="fnd">Pairs: 0 / 6</span>`);
+  const me = G = {};
+  const back = `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#fff"/><path d="M20 20V9M20 20l7 4" stroke="#2F7DE1" stroke-width="3.4" stroke-linecap="round"/></svg>`;
+  $('#gArea').innerHTML = `<div class="mem">${cards.map((c, i) => `<button class="card" data-i="${i}" aria-label="Card ${i + 1}"><div class="in"><div class="b">${back}</div><div class="f">${c.k === 'c' ? clockSVG(c.t, { theme: 'screen' }) : cap(words(c.t))}</div></div></button>`).join('')}</div>`;
+  $$('.card').forEach(el => el.onclick = () => {
+    if (busy || el.classList.contains('flip') || el.classList.contains('done')) return;
+    el.classList.add('flip'); Sound.flip(); open.push(el);
+    if (open.length === 2) {
+      moves++; $('#mvs').textContent = `Moves: ${moves}`; busy = true;
+      const [a, b] = open.map(e => cards[+e.dataset.i]);
+      if (a.t === b.t && a.k !== b.k) {
+        setTimeout(() => { open.forEach(e => { e.classList.remove('flip'); e.classList.add('done'); }); open = []; busy = false; found++; $('#fnd').textContent = `Pairs: ${found} / 6`; Sound.good();
+          if (found === 6) setTimeout(() => G === me && finish('match', 6, 6, moves <= 9 ? 3 : moves <= 13 ? 2 : 1, `You found all 6 pairs in ${moves} moves.`), 500); }, 450);
+      } else {
+        setTimeout(() => open.forEach(e => e.classList.add('miss')), 350);
+        setTimeout(() => { open.forEach(e => e.classList.remove('flip', 'miss')); open = []; busy = false; }, 1300);
+      }
+    }
+  });
+}
+
+/* --- Activity 4: True or false quick-fire --- */
+function gameQuick() {
+  const DUR = 60; let left = DUR, score = 0, wrong = 0, cur, timer, lock = false;
+  gameShell(ACTS.quick.title, `${ansSeg()}<span class="pill" id="qScore">✓ 0</span>`);
+  bindAnsSeg(() => paint());
+  const area = $('#gArea');
+  area.innerHTML = `<div class="quick"><div class="timer"><i id="tbar"></i></div><div class="g-body"><div class="g-clock" id="qClock"></div><div><div class="q-state" id="qState"></div><div class="tf"><button class="btn t" id="tBtn">True</button><button class="btn f" id="fBtn">False</button></div><p style="text-align:center;color:var(--muted);font-weight:600;margin-top:14px"><span id="tLeft">60</span> seconds left</p></div></div></div>`;
+  const qp = () => { const t = pick(pool(S.level)); const truth = R() < .5; const shown = truth ? t : distractors(t, 1)[0].t; return { t, shown, truth }; };
+  function paint() { $('#qState').innerHTML = S.ansFmt === 'digital' ? `It’s ${digital(cur.shown)}.` : `It’s ${words(cur.shown)}.`; }
+  function nextQ() { cur = qp(); $('#qClock').innerHTML = clockSVG(cur.t, { theme: 'screen' }); paint(); lock = false; }
+  function ans(v) {
+    if (lock || left <= 0) return; lock = true; const ok = v === cur.truth;
+    const box = $('#qClock');
+    box.classList.remove('flash-good', 'flash-bad'); void box.offsetWidth; box.classList.add(ok ? 'flash-good' : 'flash-bad');
+    if (ok) { score++; Sound.good(); } else { wrong++; Sound.bad(); }
+    $('#qScore').textContent = `✓ ${score}`;
+    setTimeout(nextQ, ok ? 250 : 650);
+  }
+  $('#tBtn').onclick = () => ans(true); $('#fBtn').onclick = () => ans(false);
+  const key = e => { if (e.key === 't' || e.key === 'ArrowLeft') ans(true); if (e.key === 'f' || e.key === 'ArrowRight') ans(false); };
+  addEventListener('keydown', key);
+  timer = setInterval(() => {
+    left--; $('#tLeft').textContent = left; $('#tbar').style.width = (left / DUR * 100) + '%';
+    if (left <= 0) { clearInterval(timer); finish('quick', score, score + wrong, score >= 15 ? 3 : score >= 10 ? 2 : score >= 5 ? 1 : 0, `${score} right and ${wrong} wrong in 60 seconds.`); }
+  }, 1000);
+  G = { cleanup() { clearInterval(timer); removeEventListener('keydown', key); } };
+  nextQ();
+}
+
+/* ---------- modal + confetti ---------- */
+function openModal(html) { $('#modalBox').innerHTML = html; $('#modal').classList.add('show'); }
+function closeModal() { $('#modal').classList.remove('show'); }
+function confetti() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cols = ['#FFC23C', '#F2545B', '#2F7DE1', '#1FA971', '#8B5CF6'];
+  for (let i = 0; i < 70; i++) {
+    const d = document.createElement('div'); d.className = 'confetti';
+    d.style.left = Math.random() * 100 + 'vw'; d.style.background = cols[i % cols.length];
+    d.style.animationDuration = 1.6 + Math.random() * 1.8 + 's'; d.style.animationDelay = Math.random() * .4 + 's';
+    document.body.appendChild(d); setTimeout(() => d.remove(), 4200);
+  }
+}
+
+/* ================= WORKSHEETS ================= */
+const WS_TYPES = [
+  { id: 'read', label: 'Read the clock', sub: 'Write the time' },
+  { id: 'draw', label: 'Draw the hands', sub: 'Show the time' },
+  { id: 'match', label: 'Match up', sub: 'Clock to time' },
+  { id: 'three', label: 'Three ways', sub: 'Clock · digital · words' },
+  { id: 'mixed', label: 'Read & draw', sub: 'Big clocks, both skills' },
+  { id: 'paper', label: 'Paper clock', sub: 'Cut-out to make' }
+];
+const faceSVG = (name) => {
+  const mouth = { happy: 'M7 13.5q5 5 10 0', ok: 'M7.5 15h9', sad: 'M7 16.5q5-4.5 10 0' }[name];
+  return `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="none" stroke="#111" stroke-width="1.4"/><circle cx="8.6" cy="9.6" r="1.3" fill="#111"/><circle cx="15.4" cy="9.6" r="1.3" fill="#111"/><path d="${mouth}" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+};
+function sheet({ title, instr, key, code, n, body, tip, level }) {
+  const head = `<div class="ws-head"><div class="tt"><div class="ws-badge${key ? ' key' : ''}">${key ? 'Answer key · ' : ''}${LV[level].label}</div><h1>${title}</h1><p>${instr}</p></div>
+    ${key ? '' : `<div class="ws-name"><span>Name</span><i></i><span>Date</span><i></i></div>`}</div>`;
+  const foot = `<div class="ws-foot"><div class="ws-tip">${tip}</div>
+    ${n && !key ? `<div class="ws-self"><div>${faceSVG('happy')}I’ve got it!</div><div>${faceSVG('ok')}Nearly there</div><div>${faceSVG('sad')}I need help</div></div><div class="ws-score">Score: ____ / ${n}</div>` : ''}</div>
+    <div class="ws-code">Clockwise · code ${code}</div>`;
+  return `<div class="sheet">${head}<div class="ws-body">${body}</div>${foot}</div>`;
+}
+const BODY_H = 297 - 21 - 31 - 17 - 7; // mm available for body ≈ 221
+function labelHTML(t, show, w) {
+  if (show === 'digital') return `<div class="ws-label" style="font-size:6mm">${digital(t)}</div>`;
+  if (show === 'both') return `<div class="ws-label">${cap(words(t, w))}<small>${digital(t)}</small></div>`;
+  return `<div class="ws-label">${cap(words(t, w))}</div>`;
+}
+function digBoxes(t) { return `<div class="ws-dig"><span>${t == null ? '' : hr12(t)}</span>:<span>${t == null ? '' : String(t % 60).padStart(2, '0')}</span></div>`; }
+function wordLine(t, w, solo) { return `<div class="ws-line${solo || t != null ? ' solo' : ''}">${t == null ? '' : words(t, w)}</div>`; }
+
+function cellsRead(times, o, key, start = 0, dims) {
+  return times.map((t, i) => `<div class="ws-cell"><div class="ws-n">${start + i + 1}</div>${clockSVG(t, { theme: 'print', labels: o.helpers, width: dims.clock + 'mm' })}
+    ${o.ans !== 'words' ? digBoxes(key ? t : null) : ''}${o.ans !== 'digital' ? wordLine(key ? t : null, o.words, dims.solo) : ''}</div>`).join('');
+}
+function cellsDraw(times, o, key, start = 0, dims) {
+  return times.map((t, i) => `<div class="ws-cell"><div class="ws-n">${start + i + 1}</div>${labelHTML(t, o.show, o.words)}${clockSVG(t, { theme: 'print', labels: o.helpers, hands: key, width: dims.clock + 'mm' })}</div>`).join('');
+}
+function pickTimes(o, n, r) {
+  const p = shuffle(pool(o.level), r); const out = [];
+  while (out.length < n) out.push(...shuffle(p, r));
+  return out.slice(0, n);
+}
+function buildPages(o) {
+  const pages = [];
+  for (let v = 0; v < o.versions; v++) {
+    const code = (o.seed || 'AAAA') + (o.versions > 1 ? '-' + (v + 1) : '');
+    const r = rng(`${code}|${o.type}|${o.level}|${o.count}`);
+    const made = buildSheet(o, r, code);
+    pages.push(made.student); if (o.key && made.key) pages.push(made.key);
+  }
+  return pages;
+}
+function buildSheet(o, r, code) {
+  const tip = TIPS[o.level], level = o.level, w = o.words;
+  const mk = (key, n, title, instr, body) => sheet({ title, instr, key, code, n, body, tip, level });
+  if (o.type === 'read' || o.type === 'draw') {
+    const n = o.count, cols = n === 6 ? 2 : 3, rows = n / cols;
+    const cellW = 186 / cols, cellH = BODY_H / rows;
+    const isRead = o.type === 'read';
+    const extra = isRead ? (o.ans === 'both' ? (n === 12 ? 18.5 : 25) : (n === 12 ? 10 : 13)) : (o.show === 'both' ? 14 : 9);
+    const clock = Math.min(cellW - 12, (cellH - extra - (n === 12 ? 2.5 : 6)));
+    const dims = { clock: Math.max(26, Math.min(clock, 70)), solo: n === 12 };
+    const times = pickTimes(o, n, r);
+    const grid = (key) => `<div class="ws-grid${n === 12 ? ' compact' : ''}" style="grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr)">${isRead ? cellsRead(times, o, key, 0, dims) : cellsDraw(times, o, key, 0, dims)}</div>`;
+    const title = isRead ? 'Read the clock' : 'Draw the hands';
+    const instr = isRead ? `Look at each clock. Write the time${o.ans === 'both' ? ' in numbers and in words' : o.ans === 'words' ? ' in words' : ' in numbers'}.`
+                         : 'Draw the hands to show each time. Make the <b>hour hand short</b> and the <b>minute hand long</b>.';
+    return { student: mk(false, n, title, instr, grid(false)), key: mk(true, n, title, instr, grid(true)) };
+  }
+  if (o.type === 'mixed') {
+    const times = pickTimes(o, 6, r), a = times.slice(0, 3), b = times.slice(3);
+    const half = (BODY_H - 18) / 2;
+    const ans = o.ans === 'both' ? 25 : 13;
+    const d1 = { clock: Math.min(54, half - ans - 6) }, d2 = { clock: Math.min(54, half - (o.show === 'both' ? 14 : 9) - 6) };
+    const body = key => `<div class="ws-sec">Read the clock — write the time</div><div class="ws-grid" style="grid-template-columns:repeat(3,1fr)">${cellsRead(a, o, key, 0, d1)}</div>
+      <div class="ws-sec" style="margin-top:3mm">Draw the hands</div><div class="ws-grid" style="grid-template-columns:repeat(3,1fr)">${cellsDraw(b, o, key, 3, d2)}</div>`;
+    const instr = 'Write the time on the first three clocks. Draw the hands on the last three.';
+    return { student: mk(false, 6, 'Read and draw', instr, body(false)), key: mk(true, 6, 'Read and draw', instr, body(true)) };
+  }
+  if (o.type === 'match') {
+    const times = pickTimes(o, 6, r), order = shuffle([0, 1, 2, 3, 4, 5], r);
+    const Hh = BODY_H - 4, rowH = Hh / 6, cd = Math.min(31, rowH - 3);
+    const body = key => {
+      let s = `<svg viewBox="0 0 186 ${Hh}" style="width:186mm;height:${Hh}mm;display:block" font-family="Poppins, sans-serif" xmlns="http://www.w3.org/2000/svg">`;
+      times.forEach((t, i) => {
+        const cy = rowH * i + rowH / 2;
+        s += `<svg x="${6}" y="${cy - cd / 2}" width="${cd}" height="${cd}" viewBox="-107 -107 214 214">${clockSVG(t, { theme: 'print' }).replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '')}</svg>`;
+        s += `<circle cx="${cd + 15}" cy="${cy}" r="2.2" fill="#111"/>`;
+      });
+      order.forEach((j, row) => {
+        const t = times[j], cy = rowH * row + rowH / 2;
+        s += `<circle cx="118" cy="${cy}" r="2.2" fill="#111"/><rect x="124" y="${cy - 11}" width="61" height="22" rx="4" fill="none" stroke="#111" stroke-width=".5"/>`;
+        if (o.show === 'digital') s += `<text x="154.5" y="${cy}" font-size="7.5" font-weight="700" text-anchor="middle" dominant-baseline="central">${digital(t)}</text>`;
+        else if (o.show === 'both') s += `<text x="154.5" y="${cy - 2.6}" font-size="4.3" font-weight="700" text-anchor="middle" dominant-baseline="central">${cap(words(t, w))}</text><text x="154.5" y="${cy + 4.4}" font-size="3.8" font-weight="600" fill="#444" text-anchor="middle" dominant-baseline="central">${digital(t)}</text>`;
+        else s += `<text x="154.5" y="${cy}" font-size="4.6" font-weight="700" text-anchor="middle" dominant-baseline="central">${cap(words(t, w))}</text>`;
+        if (key) { const ci = j, y0 = rowH * ci + rowH / 2; s += `<line x1="${cd + 15}" y1="${y0}" x2="118" y2="${cy}" stroke="#1a5fd0" stroke-width=".7"/>`; }
+      });
+      return s + `</svg>`;
+    };
+    const instr = 'Draw a line from each clock to the time it shows.';
+    return { student: mk(false, 6, 'Match the times', instr, body(false)), key: mk(true, 6, 'Match the times', instr, body(true)) };
+  }
+  if (o.type === 'three') {
+    const times = pickTimes(o, 6, r), given = shuffle(['c', 'c', 'd', 'd', 'w', 'w'], r);
+    const body = key => `<table class="ws-three"><colgroup><col style="width:52mm"><col style="width:46mm"><col></colgroup><tr><th>Clock</th><th>Digital</th><th>Words</th></tr>${times.map((t, i) => {
+      const g = given[i];
+      const c = (g === 'c' || key) ? clockSVG(t, { theme: 'print', labels: o.helpers, width: '31mm' }) : clockSVG(t, { theme: 'print', labels: o.helpers, hands: false, width: '31mm' });
+      const d = g === 'd' ? `<div class="given">${digital(t)}</div>` : digBoxes(key ? t : null);
+      const wd = g === 'w' ? `<div class="givenw">${cap(words(t, w))}</div>` : `<div style="display:flex;justify-content:center">${wordLine(key ? t : null, w)}</div>`;
+      return `<tr><td><div style="display:flex;justify-content:center">${c}</div></td><td>${d}</td><td>${wd}</td></tr>`;
+    }).join('')}</table>`;
+    const instr = 'Each row shows the time one way: on a clock, in numbers or in words. Fill in the other two ways.';
+    return { student: mk(false, 6, 'Three ways', instr, body(false)), key: mk(true, 6, 'Three ways', instr, body(true)) };
+  }
+  if (o.type === 'paper') {
+    const k = 160 / 260; // mm per svg unit for the face (viewBox 260 wide → 160mm)
+    // hands drawn lying sideways (pointing right), at the same scale as the face
+    const handCut = (len, wid, tail, label) => {
+      const pad = 4, vw = len + tail + pad * 2, vh = wid + pad * 2;
+      return `<div style="text-align:center"><svg viewBox="0 0 ${vw} ${vh}" style="width:${vw * k}mm;height:${vh * k}mm;display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="${vw - 2}" height="${vh - 2}" rx="${vh / 2 - 1}" fill="none" stroke="#777" stroke-width="1" stroke-dasharray="3 2.5"/>
+        <g transform="translate(${pad + tail} ${vh / 2}) rotate(90)"><path d="${handPath(len, wid, tail)}" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/>
+        <circle r="2.6" fill="none" stroke="#111" stroke-width="1"/><path d="M-1.5 0h3M0 -1.5v3" stroke="#111" stroke-width=".7"/></g></svg>
+        <div style="font-size:3.2mm;font-weight:700;margin-top:1.5mm">${label}</div></div>`;
+    };
+    // paper hands made wider so they can be coloured and cut
+    const body = `<div style="display:flex;justify-content:center;position:relative">
+        ${clockSVG(0, { theme: 'print', labels: true, hands: false, width: '160mm' }).replace('</svg>', `<text x="42" y="22" font-size="11" font-weight="700" fill="#999" text-anchor="middle" letter-spacing="1.5">PAST</text><text x="-42" y="22" font-size="11" font-weight="700" fill="#999" text-anchor="middle" letter-spacing="1.5">TO</text><line x1="0" y1="-56" x2="0" y2="-8" stroke="#bbb" stroke-width=".8" stroke-dasharray="3 3"/><line x1="0" y1="8" x2="0" y2="56" stroke="#bbb" stroke-width=".8" stroke-dasharray="3 3"/></svg>`)}</div>
+      <div style="display:flex;justify-content:space-around;align-items:center;margin-top:3mm">${handCut(MIN_LEN, 13, 14, 'Minute hand (long)')}${handCut(HOUR_LEN, 17, 14, 'Hour hand (short)')}</div>
+      <div class="ws-steps" style="margin-top:auto"><div><b>1. Colour</b>Colour the past side and the to side in two colours.</div><div><b>2. Cut</b>Cut out the clock face and both hands on the dashed lines.</div><div><b>3. Join</b>Push a split pin through the dots on both hands and the middle of the clock.</div><div><b>4. Practise</b>Show o’clock, half past, quarter past and quarter to.</div></div>`;
+    return { student: sheet({ title: 'Make your own clock', instr: 'Colour, cut and join the hands with a split pin. Then show the times your teacher calls out.', key: false, code, n: 0, body, tip: TIPS[o.level], level: o.level }), key: null };
+  }
+}
+
+/* worksheet controls */
+function segHTML(el, items, cur, onPick) {
+  el.innerHTML = items.map(([v, l]) => `<button data-v="${v}" aria-pressed="${String(v) === String(cur)}">${l}</button>`).join('');
+  $$('button', el).forEach(b => b.onclick = () => { onPick(b.dataset.v); $$('button', el).forEach(x => x.setAttribute('aria-pressed', x === b)); });
+}
+function renderWsControls() {
+  const W = S.ws;
+  if (!W.seed) W.seed = newCode();
+  $('#wsTypes').innerHTML = WS_TYPES.map(t => `<button data-t="${t.id}" aria-pressed="${t.id === W.type}">${t.label}<small>${t.sub}</small></button>`).join('');
+  $$('#wsTypes button').forEach(b => b.onclick = () => { W.type = b.dataset.t; $$('#wsTypes button').forEach(x => x.setAttribute('aria-pressed', x === b)); wsChanged(); });
+  renderLevelChips($('#wsLevels'), W.level, l => { W.level = l; if (l === 'five' || l === 'mix') { W.helpers = W.helpers; } wsChanged(); });
+  segHTML($('#wsCount'), [[6, '6'], [9, '9'], [12, '12']], W.count, v => { W.count = +v; wsChanged(); });
+  segHTML($('#wsAns'), [['digital', 'Digital'], ['words', 'Words'], ['both', 'Both']], W.ans, v => { W.ans = v; wsChanged(); });
+  segHTML($('#wsShow'), [['words', 'Words'], ['digital', 'Digital'], ['both', 'Both']], W.show, v => { W.show = v; wsChanged(); });
+  segHTML($('#wsVersions'), [[1, '1'], [2, '2'], [3, '3'], [4, '4']], W.versions, v => { W.versions = +v; wsChanged(); });
+  const sw = (id, k) => { const b = $(id); b.setAttribute('aria-pressed', W[k]); b.onclick = () => { W[k] = !W[k]; b.setAttribute('aria-pressed', W[k]); if (k === 'words') { S.numWords = W.words; syncToggles(); renderLearn(); } wsChanged(); }; };
+  sw('#wsHelpers', 'helpers'); sw('#wsWords', 'words'); sw('#wsKey', 'key');
+  $('#wsSeed').value = W.seed;
+  $('#wsSeed').oninput = e => { const v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); e.target.value = v; if (v.length >= 3) { W.seed = v; wsChanged(); } };
+  $('#wsNew').onclick = () => { W.seed = newCode(); $('#wsSeed').value = W.seed; wsChanged(); };
+  $('#wsPrint').onclick = () => window.print();
+}
+function wsChanged() { save(); renderPages(); }
+function renderPages() {
+  const W = S.ws;
+  $('#wsCountRow').classList.toggle('opt-off', !(W.type === 'read' || W.type === 'draw'));
+  $('#wsAnsRow').classList.toggle('opt-off', !(W.type === 'read' || W.type === 'mixed'));
+  $('#wsShowRow').classList.toggle('opt-off', !(W.type === 'draw' || W.type === 'match' || W.type === 'mixed'));
+  $('#wsKey').classList.toggle('opt-off', W.type === 'paper');
+  const pages = buildPages(W);
+  $('#pages').innerHTML = pages.map((p, i) => `<div class="page-cap">Page ${i + 1} of ${pages.length}</div>${p}`).join('');
+  fitPreview();
+}
+function fitPreview() {
+  const box = $('#pages'); if (!box.offsetWidth) return;
+  const z = Math.min(1, (box.clientWidth - 8) / (210 * 96 / 25.4));
+  box.style.setProperty('--z', z.toFixed(3));
+}
+addEventListener('resize', fitPreview);
+
+/* ================= tabs + chrome ================= */
+function showTab(id) {
+  $$('.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === id));
+  $$('main > section').forEach(s => s.hidden = s.id !== id);
+  if (id === 'play' && !G) renderPlayHome();
+  if (id === 'print') { renderWsControls(); renderPages(); }
+  if (id !== 'learn') stopCount();
+  history.replaceState(null, '', '#' + id);
+}
+$$('.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+function applyContrast() { document.documentElement.dataset.contrast = S.contrast ? 'high' : ''; $('#contrastBtn').setAttribute('aria-pressed', S.contrast); $('meta[name=theme-color]').content = S.contrast ? '#000000' : '#FFC23C'; }
+function applySound() { $('#soundBtn').setAttribute('aria-pressed', S.sound); $('#soundBtn .wave').style.display = S.sound ? '' : 'none'; }
+$('#contrastBtn').onclick = () => { S.contrast = !S.contrast; applyContrast(); save(); };
+$('#soundBtn').onclick = () => { S.sound = !S.sound; applySound(); save(); if (S.sound) Sound.good(); };
+$('#fsBtn').onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); };
+$('#modal').onclick = e => { if (e.target.id === 'modal') endGame(); };
+addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal').classList.contains('show')) endGame(); });
+applyContrast(); applySound();
+addEventListener('beforeprint', () => { if ($('#print').hidden) showTab('print'); });
+
+let deferredInstall = null;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; $('#installBtn').classList.add('show'); });
+$('#installBtn').onclick = async () => { if (!deferredInstall) return; deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; $('#installBtn').classList.remove('show'); };
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+
+showTab(['learn', 'play', 'print'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'learn');
+
+/* test hook */
+window.CW = { words, digital, clockSVG, buildPages, distractors, pool, LEVELS, angH, angM, S, showTab, renderPages, startGame, learnClock };
+</script>
+</body>
+</html>
